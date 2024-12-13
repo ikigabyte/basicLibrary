@@ -6,8 +6,10 @@ local frames
 local animations = {
 	["ExplosiveButton"] = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, true, 0),
 	["PopupFrame"] = TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0),
+	["FastScroll"] = TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, 0, false, 0),
 }
 
+local currentVisibleFrame
 local currentTween
 local debounceBetweenClicks = false
 local frameTweens = {}
@@ -25,19 +27,40 @@ function uiHandler.TurnOffAllFrames(frameName: string)
 end
 
 
-function uiHandler.animateButton(button : TextButton, parameters, animationType:  string)
-	if runningTweens[button] then
-		runningTweens[button]:Cancel()
+function uiHandler.CloseActiveFrame()
+	for _, frame in pairs(frames:GetChildren()) do
+		if not frame.Visible then
+			continue
+		end
+		local origPosition = frame.Position
+		local tween = library.TweenService:Create(frame, animations["PopupFrame"], { Position = UDim2.new(0.5, 0, 1.4, 0) })
+		tween:Play()
+		tween.Completed:Connect(function()
+			frame.Position = origPosition
+			frame.Visible = false
+		end)
 	end
-	runningTweens[button] = library.TweenService:Create(button, animations[animationType], { parameters })
-	runningTweens[button]:Play()
 end
 
 
+function uiHandler.animateButton(button: TextButton, parameters, animationType: string)
+	if runningTweens[button] then
+		runningTweens[button]:Cancel()
+	end
+	runningTweens[button] = library.TweenService:Create(button, animations[animationType], parameters)
+	runningTweens[button]:Play()
+end
+
+function uiHandler.animateScroll(frame, parameters: {}, animationType: string)
+	if frameTweens[frame] then
+		frameTweens[frame]:Cancel()
+	end
+	frameTweens[frame] = library.TweenService:Create(frame, animations[animationType], parameters)
+	frameTweens[frame]:Play()
+end
 
 function uiHandler.OnButtonActivation(button: ImageButton | TextButton)
 	-- print(button.Name)
-
 	if debounceBetweenClicks then
 		return
 	end
@@ -60,10 +83,12 @@ function uiHandler.OnButtonActivation(button: ImageButton | TextButton)
 		local YScale = frameSize.Y.Scale
 		frame.Visible = true
 		frame.Size = UDim2.new(XScale * 0.8, 0, YScale * 0.8, 0)
-		local tween = library.TweenService:Create(frame, animations["PopupFrame"], { Size = UDim2.new(XScale, 0, YScale, 0) })
+		local tween =
+			library.TweenService:Create(frame, animations["PopupFrame"], { Size = UDim2.new(XScale, 0, YScale, 0) })
 		tween:Play()
 	else
-		uiHandler.TurnOffAllFrames()
+		uiHandler.CloseActiveFrame()
+		-- uiHandler.TurnOffAllFrames(frame)
 		-- warn("Frame not found")
 	end
 
@@ -97,7 +122,22 @@ end
 uiHandler.Init = function()
 	screenGui = library.PlayerGui:WaitForChild("ScreenGui")
 	frames = screenGui:WaitForChild("Frames")
+
 	uiHandler.InitiateButtons()
+
+	for _, button in pairs(frames:GetDescendants()) do
+		if button:IsA("TextButton") == false or button:IsA("ImageButton") then
+			continue
+		end
+		if button.Name ~= "CloseButton" then
+			continue
+		end
+		button.Activated:Connect(function()
+			warn("close existing frame")
+			uiHandler.CloseActiveFrame()
+		end)
+	end
+
 	print("initated all the buttons here")
 end
 

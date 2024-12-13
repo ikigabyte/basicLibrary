@@ -7,6 +7,7 @@ Library.Events = ReplicatedStorage:WaitForChild("Events")
 Library.TextChatService = game:GetService("TextChatService")
 Library.TweenService = game:GetService("TweenService")
 Library.StarterGui = game:GetService("TweenService")
+Library.Debris = game:GetService("Debris")
 
 Library.Players = game:GetService("Players")
 Library.MarketplaceService = game:GetService("MarketplaceService")
