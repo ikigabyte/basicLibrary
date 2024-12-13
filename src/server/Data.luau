@@ -16,6 +16,20 @@ local ProfileTemplate = {
 		Pets = {},
 
 	},
+	Boosts = {
+		["DoublePower"] = {
+			Owned = 0,
+		},
+		["DoubleWins"] = {
+			Owned = 0,
+		},
+		["DoubleLuck"] = {
+			Owned = 0,
+		},
+	},
+	LastLogin = os.time(),
+	CurrentStreak = 0,
+	FirstPlay = false,
 	Settings = {
 		Music = true,
 		Sound = true,
@@ -24,7 +38,6 @@ local ProfileTemplate = {
 	UnlockedMaps = {},
 	CurrentTool = nil,
 	TutorialCompleted = false,
-	LastPlayed = os.time(),
 }
 
 local profileStore = ProfileService.GetProfileStore("PlayerData", ProfileTemplate)

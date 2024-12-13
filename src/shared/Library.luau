@@ -14,6 +14,18 @@ Library.MarketplaceService = game:GetService("MarketplaceService")
 Library.SoundService = game:GetService("SoundService")
 Library.Shared = require(script.Parent:WaitForChild("Shared"))
 Library.Assets = Library.ReplicatedStorage:WaitForChild("Assets")
+
+Library.Functions = {
+
+    ["formatTime"] = require(game.ReplicatedStorage.Shared.Functions.formatTime)
+}
+-- for _, modScript in pairs(game.ReplicatedStorage.Shared.Functions:GetChildren()) do 
+--     if modScript:IsA("ModuleScript") then 
+--         Library.Functions[modScript.Name] = require(modScript)
+--         -- table.insert(Library.Functions, require(modScript))
+--     end
+-- end
+
 if Library.RunService:IsClient() then
     Library.Player = game.Players.LocalPlayer
     Library.PlayerGui = Library.Player:WaitForChild("PlayerGui")

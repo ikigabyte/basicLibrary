@@ -4,7 +4,11 @@
     "$className": "DataModel",
     "ReplicatedStorage": {
       "Shared": {
-        "$path": "src/shared"
+        "$path": "src/shared",
+        "Functions": {
+          "$className": "Folder",
+           "$path": "src/functions"
+        }
       }
     },
 
@@ -21,7 +25,7 @@
         }
       }
     },
-
+  
     "Workspace": {
       "$properties": {
         "FilteringEnabled": true

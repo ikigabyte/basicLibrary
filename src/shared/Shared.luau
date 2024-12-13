@@ -12,6 +12,8 @@ shared.DevProducts = {
     ["MediumCash"] = 2673547554,
     ["BigCash"] = 2673547554,
     ["BiggerCash"] = 2673547554,
+    ["Boost"] = 2673547554,
+    ["DoublePower"] = 2673578525,
 }
 
 

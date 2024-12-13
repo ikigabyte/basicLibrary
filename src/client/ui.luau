@@ -26,14 +26,14 @@ function uiHandler.TurnOffAllFrames(frameName: string)
 	end
 end
 
-
 function uiHandler.CloseActiveFrame()
 	for _, frame in pairs(frames:GetChildren()) do
 		if not frame.Visible then
 			continue
 		end
 		local origPosition = frame.Position
-		local tween = library.TweenService:Create(frame, animations["PopupFrame"], { Position = UDim2.new(0.5, 0, 1.4, 0) })
+		local tween =
+			library.TweenService:Create(frame, animations["PopupFrame"], { Position = UDim2.new(0.5, 0, 1.4, 0) })
 		tween:Play()
 		tween.Completed:Connect(function()
 			frame.Position = origPosition
@@ -41,7 +41,6 @@ function uiHandler.CloseActiveFrame()
 		end)
 	end
 end
-
 
 function uiHandler.animateButton(button: TextButton, parameters, animationType: string)
 	if runningTweens[button] then
@@ -57,6 +56,14 @@ function uiHandler.animateScroll(frame, parameters: {}, animationType: string)
 	end
 	frameTweens[frame] = library.TweenService:Create(frame, animations[animationType], parameters)
 	frameTweens[frame]:Play()
+end
+
+function uiHandler.findDescendantFrameOfName(frames: Frame, name: string)
+	for _, frame in pairs(frames:GetDescendants()) do
+		if frame.Name == name then
+			return frame
+		end
+	end
 end
 
 function uiHandler.OnButtonActivation(button: ImageButton | TextButton)
@@ -113,9 +120,7 @@ function uiHandler.InitiateButtons()
 				uiHandler.OnButtonActivation(button)
 			end)
 		end
-		if button:GetAttribute("DevProduct") ~= nil then
-			print(library.Shared.DevProducts)
-		end
+		--! handle all the main ui that doiesn't belong in anything else
 	end
 end
 
@@ -137,6 +142,36 @@ uiHandler.Init = function()
 			uiHandler.CloseActiveFrame()
 		end)
 	end
+
+	-- library.Player.attr
+
+	
+	library.Player:GetAttributeChangedSignal("DoublePower"):Connect(function()
+		warn("double power has been changed here")
+		local val = library.Player:GetAttribute("DoublePower")
+		local boostFrame = screenGui.HUD.BottomLeft
+		local frame = uiHandler.findDescendantFrameOfName(boostFrame, "DoublePower")
+		-- warn(frame)
+		if not frame then return end
+		if not frame.Visible then
+			frame.Visible = true
+		end
+		-- local val = library.Player:GetAttribute(val)
+		if val == 0 then
+			warn("boost has ended here")
+		end
+		-- warn(val)
+		-- frame.TextLabel.Text = "something here"
+		frame.TextLabel.Text = library.Functions.formatTime(val, "minutes")
+		warn("formatted here")
+	end)
+	-- library.Player.AttributeChanged:Connect(function(attribute)
+	-- 	-- warn(attribute)
+	-- 	if attribute == "DoublePower" then
+
+	-- 	end
+
+	-- end)
 
 	print("initated all the buttons here")
 end
