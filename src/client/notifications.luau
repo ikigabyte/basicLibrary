@@ -21,7 +21,7 @@ function notificationMod.PromptTextNotification(text, duration, props)
         print(duration)
         template:Destroy()
     end)
-
+    print("test")
 end
 
 
