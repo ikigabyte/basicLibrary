@@ -40,6 +40,8 @@ local ProfileTemplate = {
 	TutorialCompleted = false,
 }
 
+-- game.Workspace.
+
 local profileStore = ProfileService.GetProfileStore("PlayerData", ProfileTemplate)
 
 if library.RunService:IsStudio() then 

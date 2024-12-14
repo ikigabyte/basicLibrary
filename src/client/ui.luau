@@ -109,6 +109,8 @@ function uiHandler.OnButtonActivation(button: ImageButton | TextButton)
 
 	-- print("the button has been triggered here")
 end
+
+
 function uiHandler.InitiateButtons()
 	for _, button in library.PlayerGui.ScreenGui:GetDescendants() do
 		local validButton = button:IsA("TextButton") or button:IsA("ImageButton")

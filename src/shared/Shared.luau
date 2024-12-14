@@ -17,4 +17,29 @@ shared.DevProducts = {
 }
 
 
+shared.TimeGifts = {
+    [1] = {
+        Minutes = .1 ,
+        RewardType = "Cash",
+        Reward = 100,
+    }, 
+    [2] = {
+        Minutes = 3,
+        RewardType = "Cash",
+        Reward = 100,
+    }, 
+    [3] = {
+        Minutes = 5,
+        RewardType = "Cash",
+        Reward = 100,
+    }, 
+    [4] = {
+        Minutes = 10,
+        RewardType = "Cash",
+        Reward = 100,
+    }, 
+
+
+}
+
 return shared 
