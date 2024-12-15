@@ -62,7 +62,6 @@ function shopMod.ValidateButton(button)
         local size = button.Size
         local xScale = size.X.Scale * 1.05
         local yScale = size.Y.Scale * 1.05
-        -- print(devId)
         shopMod.setupCurrentPrice(button)
 		button.Activated:Connect(function()
             sfx.Play("Click", 0.5)
@@ -85,10 +84,8 @@ end
 function shopMod:Init()
 	task.wait(1)
     local profile = library.Events.GetProfile:InvokeServer()
-    print(profile);
     local shop = library.PlayerGui:WaitForChild("ScreenGui"):WaitForChild("Frames"):WaitForChild("Shop")
     for boostName, boostStats in pairs(profile.Boosts) do
-        print(tostring(boostName))
         shopMod.setupBoosts(boostName, boostStats, shop)
     end
     --You have to update the shop with the boosts that you have

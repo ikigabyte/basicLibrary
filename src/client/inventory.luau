@@ -49,12 +49,8 @@ end
 
 function inventory:Init()
     library.Events.SetupProfile.OnClientEvent:Connect(function(data : {})
-        print("data is being setup here on the client")
-        -- print(data)
         local tables = data.Inventory.Tables
-        -- print(tables)
         for _, item in pairs(tables) do 
-            -- print(item.Name)
             -- inventory.addInventoryButton(item)   
         end
     end)

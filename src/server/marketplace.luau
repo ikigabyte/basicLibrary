@@ -32,10 +32,8 @@ marketplaceFunctions["DoublePower"] = function(player : Player)
 end
 
 function marketplace.handlePurchase(player, productId)
-    warn("handling the purchase here")
     local name
     for productName, id in pairs(library.Shared.DevProducts) do 
-        print(productName, productId)
         if id == productId then 
             name = productName
         end
@@ -45,6 +43,15 @@ function marketplace.handlePurchase(player, productId)
     end
 end
 
+marketplace.VerifyGamepass = function(player: Player, gamepassId)
+    local success,errorMsg = pcall(function()
+        return library.MarketplaceService:UserOwnsGamePassAsync(player.UserId, gamepassId)
+    end)
+    if not success then 
+        warn("error verifying gamepass", errorMsg)
+        return false
+    end 
+end
 
 marketplace.Init = function()
     library.MarketplaceService.ProcessReceipt = function(receiptInfo)
@@ -52,6 +59,10 @@ marketplace.Init = function()
         if not player then return false end
         warn("handlign the purchase here")
         return marketplace.handlePurchase(player, receiptInfo.ProductId)
+    end
+
+    library.Events.HasGamepass.OnInvoke = function(player, gamepassId)
+        return marketplace.VerifyGamepass(player, gamepassId)
     end
 
     

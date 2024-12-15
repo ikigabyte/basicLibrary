@@ -26,13 +26,10 @@ local statuses = {
 
 
 function settingsMod.MuteSFX(button: TextButton)
-	warn("muting the sfx here")
 	local size = button.Size
 	local xScale = size.X.Scale * 1.05
 	local yScale = size.Y.Scale * 1.05
     uiHandler.animateButton(button, { Size = UDim2.new(xScale, 0, yScale, 0) }, "ExplosiveButton")
-    
-    warn("muting the sfx here")
 	-- library.SoundService.SoundGroup.SFX.Volume = 0
 end
 
@@ -71,7 +68,6 @@ function settingsMod.SetupPlayerSettings(playerProfile)
     warn(profileSettings)
     currentSettings = profileSettings
     if profileSettings.Music == false then 
-        warn("setting the music to false")
 
 
         -- settingsMod.MuteMusic(library.PlayerGui.ScreenGui.Frames.Settings.MuteMusic)

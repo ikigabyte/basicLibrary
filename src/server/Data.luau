@@ -6,7 +6,7 @@ local ProfileService = require(script.Parent.Parent:WaitForChild("ProfileService
 
 local events = library.Events
 local ProfileTemplate = {
-	Coins = 0,
+	Cash = 0,
 	Gems = 0,
 	Inventory = {
 
@@ -65,6 +65,7 @@ function dataController.ResetPlayerProfile(player)
 end
 
 function dataController.GetProfile(player)
+	if Profiles[player] == nil then return nil end
 	return Profiles[player].Data or nil
 end
 
@@ -99,6 +100,18 @@ function dataController.verifyItem(player, item, inventoryType)
 
 end
 
+function dataController.UpdateCurrency(player, currency, ammt)
+	local profile = Profiles[player]
+	if profile then
+		if not profile.Data[currency] then
+			warn("this currency type was not found")
+			return
+		end
+		profile.Data[currency] += ammt
+		events.UpdateCurrency:FireClient(player, currency, profile.Data[currency])
+	end
+end
+
 function dataController.Init()
 	-- Initialize profiles for existing players
 	for _, player in library.Players:GetChildren() do
@@ -113,13 +126,12 @@ function dataController.Init()
 	-- Clean up profiles when players leave
 	library.Players.PlayerRemoving:Connect(function(player)
 		dataController.SaveProfile(player)
-		print(Profiles[player].Data)
 		Profiles[player] = nil
 	end)
 
 	local textCommand: TextChatCommand = library.TextChatService.test
 	textCommand.Triggered:Connect(function(originTextSource, unfilteredText)
-		-- warn("RESETTING DATA HERE")
+		warn("RESETTING DATA HERE")
 		local UserId = originTextSource.UserId
 		local player = game.Players:GetPlayerByUserId(UserId)
 		dataController.ResetPlayerProfile(player)
@@ -129,26 +141,35 @@ function dataController.Init()
 		return Profiles[player].Data or nil
 	end
 
+	events.serverGetProfile.OnInvoke  = function(player)
+		return dataController.GetProfile(player)
+	end
+
+	-- events.ServerGetProfile.OnInvoke = function(player)
+	-- 	return Profiles[player] or nil
+	-- end
 
 	events.PlayerSetting.OnServerEvent:Connect(function(player, setting, value)
 		local profile = Profiles[player]
 		if profile == nil then return end
 		profile.Data.Settings[setting] = value
-		warn("updated the player setting here")
+		-- warn("updated the player setting here")
 	end)
-
-	events.EquipItem.OnServerEvent:Connect(function(itemToEquip, inventoryType)
-
-		warn("equipping something here")
-		local profile = Profiles[library.Players.LocalPlayer]
-		if profile == nil then return end 
-		profile.CurrentTool = itemToEquip
-
-		warn("updated the current tool here")
-		--Do i return anything or nah 
+	
+	events.GiveCurrency.Event:Connect(function(player, currency, ammt)
+		dataController.UpdateCurrency(player, currency, ammt)
+	end)
+	--* Still need to work on 
+	-- events.EquipItem.OnServerEvent:Connect(function(itemToEquip, inventoryType)
+	-- 	warn("equipping something here")
+	-- 	local profile = Profiles[library.Players.LocalPlayer]
+	-- 	if profile == nil then return end 
+	-- 	profile.CurrentTool = itemToEquip
+	-- 	warn("updated the current tool here")
+	-- 	--Do i return anything or nah 
 		
-		warn("equipped the item ehre")
-	end)
+	-- 	warn("equipped the item ehre")
+	-- end)
 
 
 end

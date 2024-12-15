@@ -2,7 +2,7 @@
 local library = require(game.ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Library"))
 
 -- task.wait(10000) -- Until everything is loaded here
-
+local sfxMod = require(script.Parent:WaitForChild("sfx"))
 local notificationMod = {}
 
 local TIME_BETWEEN_FRIEND_CHECKS = 30
@@ -11,17 +11,19 @@ local previousFriends = {}
 
 function notificationMod.PromptTextNotification(text, duration, props)
     warn("prompting a notification here")
+    
     local notificationFrame = library.PlayerGui.ScreenGui.HUD.Notifications
     local template = notificationFrame.TemplateLabel:Clone()
     template.Parent = notificationFrame
     template.Text = text
     -- template.Parent = notificationFrame
     template.Visible = true
+    sfxMod.Play("Click")
     task.delay(duration, function()
         print(duration)
         template:Destroy()
     end)
-    print("test")
+    -- print("test")
 end
 
 

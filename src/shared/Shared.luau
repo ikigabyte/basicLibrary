@@ -1,3 +1,4 @@
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local shared = {}
 shared.Gamepasses = {
 
@@ -17,6 +18,21 @@ shared.DevProducts = {
 }
 
 
+shared.Tools = {
+    ["spikeball1"] = {
+        Price = 100,
+        Damage = 10,
+
+    },
+    ["spikeball2"] = {
+        Price = 200,
+    },
+    ["spikeball3"] = {
+        Price = "Gamepass",
+        Id = 123123123
+    }
+}
+
 shared.TimeGifts = {
     [1] = {
         Minutes = .1 ,
@@ -24,12 +40,12 @@ shared.TimeGifts = {
         Reward = 100,
     }, 
     [2] = {
-        Minutes = 3,
+        Minutes = .3,
         RewardType = "Cash",
         Reward = 100,
     }, 
     [3] = {
-        Minutes = 5,
+        Minutes = 1,
         RewardType = "Cash",
         Reward = 100,
     }, 

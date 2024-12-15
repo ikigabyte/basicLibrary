@@ -16,8 +16,8 @@ Library.Shared = require(script.Parent:WaitForChild("Shared"))
 Library.Assets = Library.ReplicatedStorage:WaitForChild("Assets")
 
 Library.Functions = {
-
-    ["formatTime"] = require(game.ReplicatedStorage.Shared.Functions.formatTime)
+    ["formatTime"] = require(game.ReplicatedStorage.Shared.Functions.formatTime),
+    ["abbreviations"] = require(game.ReplicatedStorage.Shared.Functions.abbreviations),
 }
 -- for _, modScript in pairs(game.ReplicatedStorage.Shared.Functions:GetChildren()) do 
 --     if modScript:IsA("ModuleScript") then 
@@ -26,17 +26,12 @@ Library.Functions = {
 --     end
 -- end
 
+
 if Library.RunService:IsClient() then
     Library.Player = game.Players.LocalPlayer
     Library.PlayerGui = Library.Player:WaitForChild("PlayerGui")
     Library.UserInputService = game:GetService("UserInputService")  
     -- setmetatable(Library.PlayerGui, playerGuiMetatable)
-
-    print("continuing here with the rest of the code")
-
-    
-
-    
     -- Library.StarterGui = game.StarterGui
     -- Library.StarterGui.Parent = Library.PlayerGui
 

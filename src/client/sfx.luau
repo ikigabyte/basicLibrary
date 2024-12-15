@@ -24,7 +24,6 @@ end
 function sfxMod.Play(soundName, volume, cooldown, plays, position)
 	local sound = getSound(soundName)
 	local soundPart
-	
 	if not sound then return false, "Sound does not exist" end
 	
 	--Default values---------------------------
@@ -38,6 +37,7 @@ function sfxMod.Play(soundName, volume, cooldown, plays, position)
 	--Handle playing the module---------------------------
 	task.spawn(function()
 		for i = 1, plays, 1 do
+			print("playing the sound here")
 			sound:Play()
 			task.wait(cooldown)
 		end

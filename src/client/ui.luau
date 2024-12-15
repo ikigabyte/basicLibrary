@@ -67,7 +67,6 @@ function uiHandler.findDescendantFrameOfName(frames: Frame, name: string)
 end
 
 function uiHandler.OnButtonActivation(button: ImageButton | TextButton)
-	-- print(button.Name)
 	if debounceBetweenClicks then
 		return
 	end
@@ -106,8 +105,6 @@ function uiHandler.OnButtonActivation(button: ImageButton | TextButton)
 	-- else
 
 	-- end
-
-	-- print("the button has been triggered here")
 end
 
 
@@ -127,6 +124,11 @@ function uiHandler.InitiateButtons()
 end
 
 uiHandler.Init = function()
+
+	library.Events.UpdateCurrency.OnClientEvent:Connect(function(
+		
+	)
+	end)
 	screenGui = library.PlayerGui:WaitForChild("ScreenGui")
 	frames = screenGui:WaitForChild("Frames")
 
@@ -145,6 +147,28 @@ uiHandler.Init = function()
 		end)
 	end
 
+	
+	local OPPetButton = screenGui.HUD.Right.OPPet
+	OPPetButton.Activated:Connect(function()
+		warn("checked here")
+		-- warn("activated the pet")
+		uiHandler.OnButtonActivation(OPPetButton)
+		-- library.Events.ActivatePet:FireServer()
+	end)
+
+	library.Events.UpdateCurrency.OnClientEvent:Connect(function(currencyName, ammt)
+		warn("updating the currency here")
+		ammt = tonumber(ammt)
+		-- local currency = library.Player:GetAttribute("Currency")
+		local currencyFrame = screenGui.HUD.Currencies:FindFirstChild(currencyName)
+		if not currencyFrame then
+			warn("currency frame not found")
+			return
+		end
+	
+		local abbreviated = library.Functions.abbreviations(ammt)
+		currencyFrame.Amount.Text = tostring(abbreviated)
+	end)
 	-- library.Player.attr
 
 	
@@ -167,15 +191,8 @@ uiHandler.Init = function()
 		frame.TextLabel.Text = library.Functions.formatTime(val, "minutes")
 		warn("formatted here")
 	end)
-	-- library.Player.AttributeChanged:Connect(function(attribute)
-	-- 	-- warn(attribute)
-	-- 	if attribute == "DoublePower" then
 
-	-- 	end
 
-	-- end)
-
-	print("initated all the buttons here")
 end
 
 return uiHandler
