@@ -50,11 +50,13 @@ function afkMod:Init()
 	local progressBar = OPPet.Tasks.Progress.Bar
 	local timeLeft = library.Shared.TimeUntilOPPet
 
+
 	library.Player:GetAttributeChangedSignal("TimePlayed"):Connect(function(test)
 		local plrTime = library.Player:GetAttribute("TimePlayed")
 		local modulus = plrTime / timeLeft
 		print(modulus)
 		progressBar.Size = UDim2.fromScale(modulus, 1)
+		progressBar.Parent.TimeLeft.Text = math.floor(plrTime / 60).."/"..math.floor(timeLeft / 60)
 		for _, child: TextLabel? in pairs(afkFrame:GetDescendants()) do
 			if
 				child:IsA("TextLabel")
