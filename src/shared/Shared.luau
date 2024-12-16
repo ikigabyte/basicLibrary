@@ -1,14 +1,15 @@
-local ProximityPromptService = game:GetService("ProximityPromptService")
 local shared = {}
-shared.Gamepasses = {
 
-    ["VIP"] = 123123,
-    ["x2Chance"] = 123123,
+
+
+shared.Gamepasses = {
+    ["VIP"] = 1003212013,
+    ["extra"] = 1007573112,
     ["Something here"] = 123123,
     ["Something else here"] = 123123,
 }
 
-shared.DevProducts = {
+shared.DevProduct = {
     ["SmallCash"] = 2673547554,
     ["MediumCash"] = 2673547554,
     ["BigCash"] = 2673547554,
@@ -16,6 +17,8 @@ shared.DevProducts = {
     ["Boost"] = 2673547554,
     ["DoublePower"] = 2673578525,
 }
+
+shared.TimeUntilOPPet = 3 * 60 --! 3 minutes for testing
 
 
 shared.Tools = {

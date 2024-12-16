@@ -66,8 +66,6 @@ function charMod.createSpikeBall()
 
 	charMod.SetupCollisionGroup(char)
 	local root = char:WaitForChild("HumanoidRootPart")
-
-	warn("initated the character mod here")
 	local spikeBall = game.Workspace["Meshes/spike head"]:Clone()
 	spikeBall.Parent = workspace
 	spikeBall.Massless = true

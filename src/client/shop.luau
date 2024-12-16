@@ -5,19 +5,30 @@ local sfx = require(script.Parent:WaitForChild("sfx"))
 local shopMod = {}
 
 
-function shopMod.setupCurrentPrice(button)
-    local productID = library.Shared.DevProducts[button:GetAttribute("DevProduct")]
-    if not productID then
-        warn("no product id found")
-        return
+
+function shopMod.setupCurrentPrice(button, category: string, productId : number)
+    local typeOfProduct = Enum.InfoType.Product
+    if category == "Gamepass" then
+        typeOfProduct = Enum.InfoType.GamePass
     end
-    local existingPrice = library.MarketplaceService:GetProductInfo(productID, Enum.InfoType.Product)
-    local price : TextLabel = button:FindFirstChild("Price")
-    price.Text = ""..tostring(existingPrice.PriceInRobux) --  Is the ROBLOX Icon for prices, don't worry about it
+    local existingPrice
+    local priceLabel : TextLabel = button:FindFirstChild("Price")
+    local success, errorMsg = pcall(function()
+        -- library.MarketplaceService:GetProductInfo(productId, typeOfProduct)
+        existingPrice = library.MarketplaceService:GetProductInfo(productId, typeOfProduct)
+    end)
+    if success and priceLabel then 
+        -- warn("got the price")
+        priceLabel.Text = ""..tostring(existingPrice.PriceInRobux) --  Is the ROBLOX Icon for prices, don't worry about it
+    else
+        warn("error getting the price for " , productId , category, errorMsg)
+    end
 end
 
 
+
 function shopMod.setupBoosts(boost, boostStats, shopFrame)
+
     for _, frame: Frame? in pairs(shopFrame:GetDescendants()) do
         if frame.Name == tostring(boost) then
             local owned = frame:FindFirstChild("Use")
@@ -32,13 +43,10 @@ function shopMod.setupBoosts(boost, boostStats, shopFrame)
 end
 
 function shopMod.ValidateButton(button)
-	if not button:IsA("TextButton") and not button:IsA("ImageButton") then
-        return
-    end
-	local devId = button:GetAttribute("DevProduct")
-	local gamepassId = button:GetAttribute("Gamepass")
+    
+	local devProductAttribute = button:GetAttribute("DevProduct")
+	local gamepassAttribute = button:GetAttribute("Gamepass")
 	local functionality = button:GetAttribute("Functionality")
-
 	if functionality then
         if functionality == "Boost" then 
             local boostType = button:GetAttribute("BoostType") or nil
@@ -46,23 +54,36 @@ function shopMod.ValidateButton(button)
                 sfx.Play("Click", 0.5)
                 -- ui.animateButton(button, { Size = UDim2.new(1.1, 0, 1.1, 0), Rotation = 10 }, "ExplosiveButton")
                 -- library.Events.PlayerSetting:FireServer("Boost", true)
-                warn("firing to the server to initate the boost")
+                -- warn("firing to the server to initate the boost")
                 library.Events.UseBoost:FireServer(boostType)
             end)
         end
 		warn("this is a functional button")
 	end
-	if gamepassId then
+	if gamepassAttribute then
+        local gamepassId = library.Shared.Gamepasses[gamepassAttribute]
+        if gamepassId == nil then warn("no gamepass id found here") return end 
+        shopMod.setupCurrentPrice(button, "Gamepass", gamepassId)
+        button.Activated:Connect(function()
+            sfx.Play("Click", 0.5)
+            local size = button.Size
+            local xScale = size.X.Scale * 1.05
+            local yScale = size.Y.Scale * 1.05
+            ui.animateButton(button, { Size = UDim2.fromScale(xScale,yScale) }, "ExplosiveButton")
+            library.MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, gamepassId) 
+        end)
 		-- button.Activated:Connect(function()
         --     ui.animateButton(button.ImageLabel, { Size = UDim2.new(1.1, 0, 1.1, 0), Rotation = 10 }, "ExplosiveButton")
 		-- 	game:GetService("MarketplaceService"):PromptGamePassPurchase(game.Players.LocalPlayer, gamepassId)
 		-- end)
 	end
-	if devId ~= nil then
+	if devProductAttribute ~= nil then
+        local devProductId = library.Shared.DevProduct[devProductAttribute]
+        if not devProductId then warn("no dev product id found") return end
         local size = button.Size
         local xScale = size.X.Scale * 1.05
         local yScale = size.Y.Scale * 1.05
-        shopMod.setupCurrentPrice(button)
+        shopMod.setupCurrentPrice(button, "DevProduct", devProductId)
 		button.Activated:Connect(function()
             sfx.Play("Click", 0.5)
             if button.Name == "Boost" then
@@ -73,8 +94,6 @@ function shopMod.ValidateButton(button)
                 yScale = size.Y.Scale * 1.05
                 ui.animateButton(button.ImageLabel, { Size =  UDim2.fromScale(xScale, yScale), Rotation = 8}, "ExplosiveButton")
             end
-            local devProductId = library.Shared.DevProducts[devId]
-            if not devProductId then warn("no dev product id found") return end
 			game:GetService("MarketplaceService"):PromptProductPurchase(game.Players.LocalPlayer, devProductId)
 		end)
 	end
@@ -82,17 +101,26 @@ end
 
 
 function shopMod:Init()
-	task.wait(1)
+	task.wait(1.5)
     local profile = library.Events.GetProfile:InvokeServer()
-    local shop = library.PlayerGui:WaitForChild("ScreenGui"):WaitForChild("Frames"):WaitForChild("Shop")
+    local screenGui = library.PlayerGui:WaitForChild("ScreenGui")
+    local shop = screenGui:WaitForChild("Frames"):WaitForChild("Shop")
+    local afkBuyButton = screenGui.Frames.AFK.BuyButton
+    local buyOPPet = screenGui.Frames.OPPet.Button
     for boostName, boostStats in pairs(profile.Boosts) do
         shopMod.setupBoosts(boostName, boostStats, shop)
     end
+
     --You have to update the shop with the boosts that you have
-	
 	for _, button in pairs(shop:GetDescendants()) do
+        if not button:IsA("TextButton") and  not button:IsA("ImageButton") then
+            continue
+        end
 		shopMod.ValidateButton(button)
 	end
+    shopMod.ValidateButton(afkBuyButton)
+    shopMod.ValidateButton(buyOPPet)
+
 	local scrollingFrame = shop:WaitForChild("ScrollingFrame")
 	shop.ScrollingFrame.CanvasPosition = Vector2.new(0, 0)
 	local canvasSize = shop.ScrollingFrame.AbsoluteCanvasSize

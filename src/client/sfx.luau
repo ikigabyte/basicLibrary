@@ -4,7 +4,6 @@ local sfxMod = {}
 
 local function getSound(soundName, parent)
 	local sfx = library.SoundService.SoundGroup:FindFirstChild(soundName) or nil
-	
 	--Find sound in sounds folder---------------------------
 	-- local newSound
 	-- for i, sound in ipairs(sounds) do
@@ -26,6 +25,7 @@ function sfxMod.Play(soundName, volume, cooldown, plays, position)
 	local soundPart
 	if not sound then return false, "Sound does not exist" end
 	
+
 	--Default values---------------------------
 	plays = plays or 1
 	cooldown = cooldown or sound.TimeLength
@@ -41,9 +41,8 @@ function sfxMod.Play(soundName, volume, cooldown, plays, position)
 			sound:Play()
 			task.wait(cooldown)
 		end
-		
-		library.Debris:AddItem(sound, cooldown)
-		if soundPart then library.Debris:AddItem(soundPart, cooldown) end
+		-- library.Debris:AddItem(sound, cooldown)
+		-- if soundPart then library.Debris:AddItem(soundPart, cooldown) end
 	end)
 end
 

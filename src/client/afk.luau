@@ -27,7 +27,7 @@ end
 
 function afkMod.handleButton(button: TextButton | ImageButton)
 	local size = button.Size
-	local xScale = size.X.Scale * 1.05
+	local xScale = size.X.Scale * 1.05	
 	local yScale = size.Y.Scale * 1.05
 	ui.animateButton(button, { Size = UDim2.fromScale(xScale, yScale) }, "ExplosiveButton")
 	local result = library.Events.ClaimTimeGift:InvokeServer(button.Parent.LayoutOrder)
@@ -46,8 +46,15 @@ end
 function afkMod:Init()
 	task.wait(2)
 	local afkFrame = library.PlayerGui.ScreenGui.Frames.AFK.Holder
+	local OPPet = library.PlayerGui.ScreenGui.Frames.OPPet
+	local progressBar = OPPet.Tasks.Progress.Bar
+	local timeLeft = library.Shared.TimeUntilOPPet
+
 	library.Player:GetAttributeChangedSignal("TimePlayed"):Connect(function(test)
 		local plrTime = library.Player:GetAttribute("TimePlayed")
+		local modulus = plrTime / timeLeft
+		print(modulus)
+		progressBar.Size = UDim2.fromScale(modulus, 1)
 		for _, child: TextLabel? in pairs(afkFrame:GetDescendants()) do
 			if
 				child:IsA("TextLabel")
