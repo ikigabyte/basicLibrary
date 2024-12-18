@@ -20,10 +20,8 @@ function notificationMod.PromptTextNotification(text, duration, props)
     template.Visible = true
     sfxMod.Play("Click")
     task.delay(duration, function()
-        print(duration)
         template:Destroy()
     end)
-    -- print("test")
 end
 
 

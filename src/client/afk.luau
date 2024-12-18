@@ -54,7 +54,6 @@ function afkMod:Init()
 	library.Player:GetAttributeChangedSignal("TimePlayed"):Connect(function(test)
 		local plrTime = library.Player:GetAttribute("TimePlayed")
 		local modulus = plrTime / timeLeft
-		print(modulus)
 		progressBar.Size = UDim2.fromScale(modulus, 1)
 		progressBar.Parent.TimeLeft.Text = math.floor(plrTime / 60).."/"..math.floor(timeLeft / 60)
 		for _, child: TextLabel? in pairs(afkFrame:GetDescendants()) do

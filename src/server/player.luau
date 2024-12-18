@@ -25,6 +25,21 @@ function playerMod.checkIfPlayerCanClaim(player, playerTime, indexTable)
 	end
 end
 
+
+function playerMod.setupTool(player : Player, toolName)
+
+	local tool = Instance.new("Tool")
+	tool.Name = toolName
+	tool.RequiresHandle = false
+	tool.Parent = player.Character 
+	tool.Activated:Connect(function()
+		print("player is training here")
+		-- library.Events.UpdateCurrency:Fire(player, "Power", 1)
+		-- tool.Parent = player.Backpack
+	end)
+
+end
+
 function playerMod.rewardPlayer(player, rewardIndex)
 	local gift = library.Shared.TimeGifts[rewardIndex]
 	if gift then
@@ -41,17 +56,17 @@ function playerMod.rewardPlayer(player, rewardIndex)
 end
 
 function playerMod.UpdatePlayer(player : Player)
-
-
-	
 	if loadedPlayers[player] ~= nil then
 		return
 	end
     -- task.wait(3)
 	--! get the profile here
 	--! get the last login
-
-	
+	playerMod.setupTool(player, "TrainingTool")
+	player.CharacterAdded:Connect(function()
+		warn("character added")
+		playerMod.setupTool(player, "TrainingTool")
+	end)
 	local result = library.Events.HasGamepass:Invoke(player, 90058789677835)
 	if result then 
 	end
@@ -68,7 +83,7 @@ function playerMod.UpdatePlayer(player : Player)
     end
     -- print(profile.. "is the profile")
 	loadedPlayers[player] = profile
-    print(profile)
+    -- print(profile)
     -- warn("loaded here")
     library.Events.UpdateCurrency:FireClient(player, "Cash", profile.Cash)
     library.Events.UpdateCurrency:FireClient(player, "Gems", profile.Gems)
@@ -80,7 +95,6 @@ function playerMod.UpdatePlayer(player : Player)
 			task.wait(1)
 			timePlayed = player:GetAttribute("TimePlayed")
 			-- playerMod.getRewardForMinutes(timePlayed / 60)
-			warn("ticking here")
 		end
 	end)
 end

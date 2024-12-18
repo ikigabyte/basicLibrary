@@ -1,5 +1,5 @@
 local library = require(game.ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Library"))
-
+local sfxMod = require(script.Parent:WaitForChild("sfx"))
 local screenGui
 local frames
 
@@ -82,6 +82,7 @@ function uiHandler.OnButtonActivation(button: ImageButton | TextButton)
 	currentTween:Play()
 	local frame = frames:FindFirstChild(button.Name)
 	if frame and not frame.Visible then
+		sfxMod.Play("Click", 0.5)
 		uiHandler.TurnOffAllFrames(button.Name)
 		frame.Visible = true
 		local frameSize = frame.Size
@@ -142,6 +143,7 @@ uiHandler.Init = function()
 			continue
 		end
 		button.Activated:Connect(function()
+			sfxMod.Play("Click", 0.5)
 			warn("close existing frame")
 			uiHandler.CloseActiveFrame()
 		end)
@@ -152,6 +154,7 @@ uiHandler.Init = function()
 	OPPetButton.Activated:Connect(function()
 		warn("checked here")
 		-- warn("activated the pet")
+		
 		uiHandler.OnButtonActivation(OPPetButton)
 		-- library.Events.ActivatePet:FireServer()
 	end)

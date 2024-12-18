@@ -46,7 +46,6 @@ charMod.MakeCharacterSpin = function()
 		if root then
 			-- Increment the spin speed
 			spinSpeed = spinSpeed * powerBoost
-			-- print(deltaTime)
 			-- spinSpeed = spinSpeed + spinIncrement * deltaTime
 			-- Rotate the player by modifying the CFrame
 			root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(spinSpeed * deltaTime), 0)

@@ -37,7 +37,7 @@ function sfxMod.Play(soundName, volume, cooldown, plays, position)
 	--Handle playing the module---------------------------
 	task.spawn(function()
 		for i = 1, plays, 1 do
-			print("playing the sound here")
+			-- print("playing the sound here")
 			sound:Play()
 			task.wait(cooldown)
 		end

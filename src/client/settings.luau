@@ -84,9 +84,7 @@ function settingsMod:Init()
     task.wait(2) -- Time to load the buttons in 
     SoundService.SoundGroup.Music:Play() --! play the music by default here
     local playerProfile = library.Events.GetProfile:InvokeServer()
-    -- print(playerProfile)
     settingsMod.SetupPlayerSettings(playerProfile)
-
 	settingsFrame = library.PlayerGui.ScreenGui.Frames.Settings
 	-- local options
 

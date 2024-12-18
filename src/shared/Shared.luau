@@ -1,6 +1,10 @@
 local shared = {}
 
-
+shared.RewardTypes = {
+    ENUM_CASH = "Cash",
+    ENUM_PET = "",
+    ENUM_SPIN = "",
+}
 
 shared.Gamepasses = {
     ["VIP"] = 1003212013,
@@ -20,6 +24,46 @@ shared.DevProduct = {
 
 shared.TimeUntilOPPet = 3 * 60 --! 3 minutes for testing
 
+shared.DailyRewards = {
+
+    [1] = {
+        RewardType = "Cash",
+        Reward = 100,
+        ImageType = "rbxassetid://18814815380",
+        DisplayName = "testing here",
+    },
+    [2] = {
+        RewardType = "Cash",
+        Reward = 200,
+        DisplayName = "testing something here",
+    },
+    [3] = {
+        RewardType = "Cash",
+        Reward = 300,
+        DisplayName = "something else",
+    },
+    [4] = {
+        RewardType = "Cash",
+        Reward = 400,
+        DisplayName = "",
+    },
+    [5] = {
+        RewardType = "Cash",
+        Reward = 500,
+        DisplayName = "",
+
+    },
+    [6] = {
+        RewardType = "Cash",
+        Reward = 600,
+        DisplayName = "",
+    },
+    [7] = {
+        RewardType = "Cash",
+        Reward = 700,
+        DisplayName = "",
+    }
+}
 
 shared.Tools = {
     ["spikeball1"] = {

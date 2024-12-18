@@ -27,6 +27,9 @@ function module.GetPlayerIcon(userId: number)
 end
 
 function module.FindPlayerFrame(player: Player)
+	if player == library.Player then 
+		return
+	end
 	for _, frame: Frame in pairs(scrollingFrame:GetChildren()) do
 		if frame.Frame.UserName.Text == player.Name then
 			return frame
@@ -93,8 +96,9 @@ function module:Init()
 		-- print("removign the player fromt he frame here")
 		if playerButtons[player] then
 			playerButtons[player]:Disconnect()
-			local button = module.FindPlayerFrame(player)
-			button:Destroy()
+			local frame = module.FindPlayerFrame(player)
+			if not frame then return end 
+			frame:Destroy()
 		end
 	end)
 end

@@ -41,7 +41,6 @@ function inventory.addInventoryButton(item)
         task.delay(1, function()
             debounce = false
         end)
-        -- print("activated")
     end)
 
     
@@ -56,7 +55,6 @@ function inventory:Init()
     end)
 
     library.Events.NewItem.OnClientEvent:Connect(function(item : string)
-        -- print("new item is being added")
         -- inventory.addInventoryButton(item)
         -- uiHandler.addInventoryButton(item)
     end)
