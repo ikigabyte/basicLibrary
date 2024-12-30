@@ -8,10 +8,12 @@ for _, modScript : ModuleScript in pairs(script:GetChildren()) do
     end
     local module = require(modScript)
     if type(module.Init) == "function" then
-        module.Init()
+        -- module.Init()
+        task.spawn(function()
+            module.Init()
+        end)
     else
         warn("No init function found in module: " .. modScript.Name)
     end
 
-    
 end

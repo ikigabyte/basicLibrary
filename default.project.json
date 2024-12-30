@@ -19,6 +19,10 @@
     },
 
     "StarterPlayer": {
+      "$properties": {
+        "CharacterWalkSpeed" : 22,
+        "CharacterJumpHeight": 10
+      },
       "StarterPlayerScripts": {
         "Client": {
           "$path": "src/client"
@@ -54,17 +58,7 @@
       }
     },
     "Lighting": {
-      "$properties": {
-        "Ambient": [
-          0,
-          0,
-          0
-        ],
-        "Brightness": 2,
-        "GlobalShadows": true,
-        "Outlines": false,
-        "Technology": "Voxel"
-      }
+   
     },
     "SoundService": {
       "$properties": {

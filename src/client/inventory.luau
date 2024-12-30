@@ -48,10 +48,10 @@ end
 
 function inventory:Init()
     library.Events.SetupProfile.OnClientEvent:Connect(function(data : {})
-        local tables = data.Inventory.Tables
-        for _, item in pairs(tables) do 
+        -- local tables = data.Inventory.Tables
+        -- for _, item in pairs(tables) do 
             -- inventory.addInventoryButton(item)   
-        end
+        -- end
     end)
 
     library.Events.NewItem.OnClientEvent:Connect(function(item : string)

@@ -38,7 +38,7 @@ function dailyMod.SetupDailyRewards(dailyFrame: Frame)
 	local dailyFrame = library.PlayerGui:WaitForChild("ScreenGui"):WaitForChild("Frames"):WaitForChild("DailyRewards")
 	local profile = library.Events.GetProfile:InvokeServer()
 	if not profile then
-		warn("profile not here")
+		-- warn("profile not here")
 		return
 	end
 	local currentStreak = profile.CurrentStreak

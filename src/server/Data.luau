@@ -1,16 +1,35 @@
+--[[
+This script defines a `dataController` table and sets up the initial data structure for player profiles in a game.
+It requires necessary modules from the game's replicated storage and parent directories.
+
+The `ProfileTemplate` table defines the default values for a player's profile, including:
+- Cash: The amount of in-game currency the player has.
+- Gems: Another form of in-game currency.
+- Power: A metric for the player's power level.
+- Wins: The number of wins the player has achieved.
+- Inventory: A nested table containing:
+  - Balls: A list of different types of balls the player can own.
+  - Pets: An empty table for storing pets the player may acquire.
+- Boosts: A nested table containing different types of boosts the player can own, each with an `Owned` count.
+
+]]
+
 local dataController = {}
 
 local library = require(game.ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Library"))
 local ProfileService = require(script.Parent.Parent:WaitForChild("ProfileService"))
 
 local events = library.Events
+local promoCodes = library.PromoCodes
+
 local ProfileTemplate = {
 	Cash = 0,
 	Gems = 0,
 	Power = 0,
+	Wins = 0,
 	Inventory = {
-		Tables = {
-			"Ruby",
+		Balls = {
+			"Spike Ball",
 			"Emerald",
 			"Sapphire",
 			"Diamond",
@@ -41,6 +60,7 @@ local ProfileTemplate = {
 	Settings = {
 		Music = true,
 		Sound = true,
+		Pets = true,
 	},
 	CodesRedeemed = {},
 	UnlockedMaps = {},
@@ -48,15 +68,35 @@ local ProfileTemplate = {
 	TutorialCompleted = false,
 }
 
--- game.Workspace.
-
 local profileStore = ProfileService.GetProfileStore("PlayerData", ProfileTemplate)
 
 if library.RunService:IsStudio() then
-	-- profileStore = profileStore.Mock
+	profileStore = profileStore.Mock--!Disable this if you don't need it
 end
 
 local Profiles = {}
+
+function dataController.GetDataAsync(player: Player)
+	local Profile = Profiles[player]
+	-- print(Profile)
+	local attempts, max = 0, 75
+	--Make sure data is loaded---------------------------
+	if Profile == nil then
+		repeat
+			print("attempting to get the profile here")
+			Profile = Profiles[player]
+			attempts += 1
+			task.wait(0.3)
+		until Profile ~= nil or attempts >= max
+	end
+
+	--Kick player if data hasn't loaded---------------------------
+	if Profile == nil then
+		player:Kick("You're data failed to load, please rejoin!")
+		return
+	end
+	return Profiles[player].Data
+end
 
 function dataController.SaveProfile(player: Player)
 	local profile = Profiles[player]
@@ -69,21 +109,13 @@ function dataController.ResetPlayerProfile(player)
 	profileStore:WipeProfileAsync("Player_" .. player.UserId)
 end
 
-function dataController.GetProfile(player)
-	if Profiles[player] == nil then
-		return nil
-	end
-	return Profiles[player].Data or nil
-end
-
 function dataController:SetupProfile(player: Player)
 	local profile = profileStore:LoadProfileAsync("Player_" .. player.UserId)
 	if profile then
 		profile:AddUserId(player.UserId) -- Ensures only this player can access their data
 		profile:Reconcile() -- Add missing values from template
 		Profiles[player] = profile
-		warn("Loaded profile for " .. player.Name)
-
+		-- warn("Loaded profile for " .. player.Name)
 		profile:ListenToRelease(function()
 			Profiles[player] = nil
 			player:Kick("Your data is being released.")
@@ -109,7 +141,10 @@ function dataController.forceSetLoginTime(player, hoursInSeconds: number)
 		print("force reset the login time here")
 	end
 end
-function dataController.verifyItem(player, item, inventoryType) end
+
+function dataController.verifyItem(player, item, inventoryType)
+	print("verifying this item here", item)
+end
 
 function dataController.UpdateCurrency(player, currency, ammt)
 	local profile = Profiles[player]
@@ -120,6 +155,8 @@ function dataController.UpdateCurrency(player, currency, ammt)
 		end
 		profile.Data[currency] += ammt
 		events.UpdateCurrency:FireClient(player, currency, profile.Data[currency])
+	else
+		warn("No profile for this player here")
 	end
 end
 
@@ -133,7 +170,6 @@ function dataController.setupTextCommands()
 		local UserId = originTextSource.UserId
 		local player = game.Players:GetPlayerByUserId(UserId)
 		dataController.ResetPlayerProfile(player)
-		print(unfilteredText)
 		-- dataController.forceSetLoginTime(player, os.time() - (24 * 3600))
 	end)
 
@@ -193,21 +229,45 @@ function dataController.Init()
 	end
 
 	events.serverGetProfile.OnInvoke = function(player)
-		return dataController.GetProfile(player)
+		return dataController.GetDataAsync(player)
+		-- proint
+		-- return Profiles[player].Data or nil
+		-- return dataController.GetDataAsync(player)
 	end
 
 	-- events.ServerGetProfile.OnInvoke = function(player)
 	-- 	return Profiles[player] or nil
 	-- end
 
-	events.PlayerSetting.OnServerEvent:Connect(function(player, setting, value)
+	events.GetAllProfiles.OnInvoke = function()
+		local profileTable = {}
+
+		for player, profile in pairs(Profiles) do
+			profileTable[player] = profile.Data
+		end
+		return profileTable
+	end
+
+	events.PlayerSetting.OnServerEvent:Connect(function(player, setting, status)
+		local profile = Profiles[player]
+		if profile == nil then
+			warn("no profile found here")
+			return
+		end
+		profile.Data.Settings[setting] = status
+		warn("updated the setting here")
+		-- warn("updated the player setting here")
+	end)
+
+	events.IncreasePower.Event:Connect(function(player, powerAmmt)
 		local profile = Profiles[player]
 		if profile == nil then
 			return
 		end
-		profile.Data.Settings[setting] = value
-
-		-- warn("updated the player setting here")
+		--! find the multiplier from the pets
+		--! find the strength of the player here
+		profile.Data.Power += 1
+		-- events.UpdatePower:FireClient(player, profile.Data.Power)
 	end)
 
 	events.GiveCurrency.Event:Connect(function(player, currency, ammt)
@@ -225,10 +285,10 @@ function dataController.Init()
 		-- print(lastLoginTime)
 		local currentTime = os.time()
 		local currentStreak = profile.Data.CurrentStreak
-		print("last login time", lastLoginTime)
-		print("last reward time", lastRewardTime)
-		print("current streak", currentStreak)
-		print("day claiming", dayIndex)
+		-- print("last login time", lastLoginTime)
+		-- print("last reward time", lastRewardTime)
+		-- print("current streak", currentStreak)
+		-- print("day claiming", dayIndex)
 		dayIndex = tonumber(dayIndex)
 		if dayIndex == currentStreak + 1 then
 			-- Player is claiming the next day in sequence
@@ -250,8 +310,7 @@ function dataController.Init()
 
 		local timeDifference = currentTime - lastRewardTime
 		local hoursDifference = timeDifference / 3600
-
-		print(hoursDifference, " hour difference")
+		-- print(hoursDifference, " hour difference")
 		if hoursDifference > 24 and hoursDifference < 48 then
 			-- profile.Data.LastRewardTime = os.time()
 			-- warn(profile.Data.CurrentStreak)

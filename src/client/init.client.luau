@@ -3,6 +3,18 @@ local library = require(game.ReplicatedStorage:WaitForChild("Shared"):WaitForChi
 
 local currentTime = tick()
 -- task.wait(1)
+
+local PreloadUIs = {}
+
+for _, UI: string in ipairs(PreloadUIs) do
+	library.StarterGui:WaitForChild(UI)
+end
+
+local PlayerGui = library.Player:WaitForChild("PlayerGui")
+for _, UI: GuiObject in ipairs(library.StarterGui:GetChildren()) do
+	PlayerGui:WaitForChild(tostring(UI))
+end
+
 for _, child in pairs(script:GetChildren()) do 
     if child:IsA("ModuleScript") then 
         task.spawn(function()

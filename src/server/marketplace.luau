@@ -14,7 +14,7 @@ local currentPlayerFunctions = {}
 
 
 marketplaceFunctions["DoublePower"] = function(player : Player)
-    warn("activating a potion here")
+    -- warn("activating a potion here")
     if player:GetAttribute("DoublePower") then 
         player:SetAttribute("DoublePower", player:GetAttribute("DoublePower") + (60 * 15))
         return
@@ -27,7 +27,7 @@ marketplaceFunctions["DoublePower"] = function(player : Player)
             player:SetAttribute("DoublePower", doublePower - 1)
             task.wait(1)
         end
-        warn("finished the boost here")
+        -- warn("finished the boost here")
     end) 
 end
 

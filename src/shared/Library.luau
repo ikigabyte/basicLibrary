@@ -3,24 +3,30 @@ local Library = {}
 
 Library.RunService = game:GetService("RunService")
 Library.ReplicatedStorage = game:GetService("ReplicatedStorage")
+Library.DataStoreService = game:GetService("DataStoreService")
 Library.Events = ReplicatedStorage:WaitForChild("Events")
 Library.TextChatService = game:GetService("TextChatService")
 Library.TweenService = game:GetService("TweenService")
-Library.StarterGui = game:GetService("TweenService")
+Library.StarterGui = game:GetService("StarterGui")
 Library.Debris = game:GetService("Debris")
 Library.CollectionService = game:GetService("CollectionService")
 Library.Players = game:GetService("Players")
 Library.MarketplaceService = game:GetService("MarketplaceService")
 Library.SoundService = game:GetService("SoundService")
+Library.SocialService = game:GetService("SocialService")
 Library.Shared = require(script.Parent:WaitForChild("Shared"))
 Library.Assets = Library.ReplicatedStorage:WaitForChild("Assets")
 Library.Modules = Library.ReplicatedStorage:WaitForChild("Modules")
 Library.Functions = {
     ["formatTime"] = require(game.ReplicatedStorage.Shared.Functions.formatTime),
     ["abbreviations"] = require(game.ReplicatedStorage.Shared.Functions.abbreviations),
-    ["camShaker"] = require(game.ReplicatedStorage.Shared.Functions.camShaker)
+    ["camShaker"] = require(game.ReplicatedStorage.Shared.Functions.camShaker),
+    ["random"] = require(game.ReplicatedStorage.Shared.Functions.random)
    
 }
+
+
+
 -- for _, modScript in pairs(game.ReplicatedStorage.Shared.Functions:GetChildren()) do 
 --     if modScript:IsA("ModuleScript") then 
 --         Library.Functions[modScript.Name] = require(modScript)
@@ -28,13 +34,17 @@ Library.Functions = {
 --     end
 -- end
 
+if Library.RunService:IsServer() then 
+    Library.ServerScriptService = game:GetService("ServerScriptService")
+end
+
 
 if Library.RunService:IsClient() then
     -- table.insert(Library.Functions, ["camShaker"] = require(game.ReplicatedStorage.Shared.Functions.camShaker))
     Library.Player = game.Players.LocalPlayer
     Library.PlayerGui = Library.Player:WaitForChild("PlayerGui")
     Library.Camera = workspace.CurrentCamera
-    Library.UserInputService = game:GetService("UserInputService")  
+    Library.UserInputService = game:GetService("UserInputService") 
     -- setmetatable(Library.PlayerGui, playerGuiMetatable)
     -- Library.StarterGui = game.StarterGui
     -- Library.StarterGui.Parent = Library.PlayerGui

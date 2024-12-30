@@ -17,7 +17,7 @@ function module.GetPlayerIcon(userId: number)
 			library.Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
 	end)
 	if success and isReady then
-		warn("achieved naturally")
+		-- warn("achieved naturally")
 		return icon
 	end
 	-- if not success then

@@ -1,7 +1,6 @@
 local library = require(game.ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Library"))
 local sfxMod = require(script.Parent:WaitForChild("sfx"))
-local screenGui
-local frames
+
 
 local animations = {
 	["ExplosiveButton"] = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, true, 0),
@@ -11,10 +10,19 @@ local animations = {
 
 local currentVisibleFrame
 local currentTween
+local screenGui
+local frames
+local gameGui
 local debounceBetweenClicks = false
 local frameTweens = {}
 local uiHandler = {}
 local runningTweens = {}
+
+local iconTypes = {
+	["Power"] = "rbxassetid://18804187463",
+	-- ["Gems"] = "rbxassetid://6443945014",
+	-- ["Cash"] = "rbxassetid://6443945014",
+}
 function uiHandler.TurnOffAllFrames(frameName: string)
 	-- local frames = library.PlayerGui.ScreenGui.Frames
 	for _, frame in pairs(frames:GetChildren()) do
@@ -48,6 +56,7 @@ function uiHandler.animateButton(button: TextButton, parameters, animationType: 
 	end
 	runningTweens[button] = library.TweenService:Create(button, animations[animationType], parameters)
 	runningTweens[button]:Play()
+	print("handling the button here")
 end
 
 function uiHandler.animateScroll(frame, parameters: {}, animationType: string)
@@ -65,6 +74,50 @@ function uiHandler.findDescendantFrameOfName(frames: Frame, name: string)
 		end
 	end
 end
+
+function uiHandler.spawnRandomFrame(constaints : UDim2, iconType: string, powerAmmt : number, duplicationAmmount : number, endTeleportPosition : UDim2)
+	-- local frame = frame:Clone()
+
+	for i = 1, duplicationAmmount do
+		local icon = iconTypes[iconType]
+		local clone = gameGui.CurrencyTemplate:Clone()
+		clone.Parent = gameGui
+		local size = clone.Size
+		local sizeX = size.X.Scale * 1.15
+		local sizeY = size.Y.Scale * 1.15
+		local newSize = UDim2.new(sizeX, 0, sizeY, 0)
+		library.TweenService:Create(clone, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, 0, false, 0), { Size = newSize }):Play()
+		clone.Visible = true
+		clone.TextLabel.Text = "+"..tostring(powerAmmt)
+		clone.IconLabel.Image = icon
+		clone.Rotation = math.random(-3, 3)
+		local randomX = math.random() * constaints.X.Scale
+        local randomY = math.random() * constaints.Y.Scale
+        clone.Position = UDim2.new(randomX, 0, randomY, 0)
+		task.delay(0.8, function()
+			local information = { Position = endTeleportPosition, Size = UDim2.fromScale(0.05, 0.05) }
+			local tween = library.TweenService:Create(clone, TweenInfo.new(0.25, Enum.EasingStyle.Bounce, Enum.EasingDirection.InOut, 0, false, 0), { Position = endTeleportPosition })
+			tween:Play()
+			tween.Completed:Connect(function()
+				clone:Destroy()
+			end)
+		end)
+		-- local frame = frames:FindFirstChild("PowerFrame"):Clone()
+		-- frame.Parent = frames
+		-- frame.Position = UDim2.new(math.random(0, 1), 0, math.random(0, 1), 0)
+		-- frame.Visible = true
+		-- frame.Icon.Image = iconType
+		-- frame.PowerAmmt.Text = tostring(powerAmmt)
+		-- uiHandler.animateScroll(frame, { Position = endTeleportPosition }, "FastScroll")
+	end
+	-- frame.Parent = frame.Parent
+	-- frame.Position = UDim2.new(math.random(0, 1), 0, math.random(0, 1), 0)
+	-- frame.Visible = true
+	-- frame.Icon.Image = icon
+	-- frame.PowerAmmt.Text = tostring(powerAmmt)
+	-- uiHandler.animateScroll(frame, { Position = endTeleportPosition }, "FastScroll")
+end
+
 
 function uiHandler.OnButtonActivation(button: ImageButton | TextButton)
 	if debounceBetweenClicks then
@@ -124,13 +177,27 @@ function uiHandler.InitiateButtons()
 	end
 end
 
-uiHandler.Init = function()
-
-	library.Events.UpdateCurrency.OnClientEvent:Connect(function(
-		
-	)
+function uiHandler.GetPlayerIcon(userId: number)
+	local icon, isReady
+	local success, errorMsg = pcall(function()
+		icon, isReady =
+			library.Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
 	end)
+	if success and isReady then
+		-- warn("achieved naturally")
+		return icon
+	end
+	-- if not success then
+	-- 	warn("error getting the icon", errorMsg)
+	-- 	return nil
+	-- end
+end
+
+
+uiHandler.Init = function()
+	library.StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 	screenGui = library.PlayerGui:WaitForChild("ScreenGui")
+	gameGui = library.PlayerGui:WaitForChild("GameGui")
 	frames = screenGui:WaitForChild("Frames")
 
 	uiHandler.InitiateButtons()
@@ -160,8 +227,16 @@ uiHandler.Init = function()
 	end)
 
 	library.Events.UpdateCurrency.OnClientEvent:Connect(function(currencyName, ammt)
-		warn("updating the currency here")
-		ammt = tonumber(ammt)
+		-- warn("updating the currency here")
+		-- warn(currencyName)
+		if currencyName == "Power" then
+			-- print("this is a training strength here")
+			local constraints = UDim2.fromScale(0.5, 0.3) -- ! These are the max constraints
+			local iconType = "Power"
+			local whereToEnd = UDim2.fromScale(.5,.9)
+			uiHandler.spawnRandomFrame(constraints, iconType, ammt, 1, whereToEnd)
+			return;
+		end
 		-- local currency = library.Player:GetAttribute("Currency")
 		local currencyFrame = screenGui.HUD.Currencies:FindFirstChild(currencyName)
 		if not currencyFrame then

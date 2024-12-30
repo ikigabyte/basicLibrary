@@ -1,122 +1,216 @@
-local SoundService = game:GetService("SoundService")
+
+
+--[[
+	This module handles the settings for the client, including muting music and sound effects,
+	redeeming codes, and setting up player-specific settings. It interacts with the SoundService
+	and various UI elements to provide a seamless user experience.
+
+
+]]
+
+
 local library = require(game.ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Library"))
 local uiHandler = require(script.Parent:WaitForChild("ui"))
+local sfxMod = require(script.Parent:WaitForChild("sfx"))
 
 
-local settingsFrame 
+local settingsFrame = library.PlayerGui.ScreenGui.Frames.Settings
+local scrollingFrame = settingsFrame.ScrollingFrame
 local currentSettings = {
     Music = true,
     SFX = true,
 }
-local petsOn = false;
+local petsOn = false
 local settingsMod = {}
-
-local statuses = {
-    [false] = {
-        step1Color = Color3.fromRGB(88, 206, 59),
-        step2Color = Color3.fromRGB(142, 245, 109),
-        uistroke = Color3.fromRGB(142, 245, 109),
-    },
-    [true] = {
-        step1Color = Color3.fromRGB(146, 49, 49),
-        step2Color = Color3.fromRGB(255, 81, 81),
-        uistroke = Color3.fromRGB(142, 245, 109),
-    }
-}
+local debounce = false
+local codeTextBox :TextBox = scrollingFrame.RedeemCode.Frame.TextBox
 
 
-function settingsMod.MuteSFX(button: TextButton)
+
+local OnColor : Color3 = Color3.fromRGB(77, 255, 40)
+local OffColor : Color3 = Color3.fromRGB(299, 128, 102)
+local OnColorStroke : Color3 = Color3.fromRGB(0, 81, 0)
+local OffColorStroke : Color3 = Color3.fromRGB(126, 15, 11)
+
+
+function settingsMod.SetupPlayerSettings(playerProfile)
+    local profileSettings = playerProfile.Settings
+    -- print(profileSettings)
+	local musicStatus = profileSettings.Music
+	local sfxStatus = profileSettings.Sound
+	local petsStatus = profileSettings.Pets
+
+	--Updates all the settings based on the profile settings
+
+	if musicStatus == true then
+		library.SoundService.SoundGroup.Music:Play()
+	end
+	local muteMusicButton = scrollingFrame.MuteMusic.Button
+	local muteSFXButton = scrollingFrame.MuteSFX.Button
+	local hidePetsButton = scrollingFrame.HidePets.Button
+
+	muteMusicButton:SetAttribute("status", musicStatus)
+	muteSFXButton:SetAttribute("status", sfxStatus)
+	hidePetsButton:SetAttribute("status", petsStatus)
+
+	settingsMod.MuteMusic(muteMusicButton, musicStatus, false)
+	settingsMod.MuteSFX(muteSFXButton, sfxStatus, false)
+	settingsMod.HidePets(hidePetsButton, petsStatus, false)
+
+end
+
+
+
+
+function settingsMod.RedeemCode(button: TextButton)
+	local code = codeTextBox.Text
+	if code == "" then
+			codeTextBox.PlaceholderText = "Redeem Code"
+		return
+	end
+
+	codeTextBox.PlaceholderText = "Redeem Code"
+	-- print("clicked here")
+	library.Events.RedeemCode:FireServer(code)
+	-- code.placeh
+	codeTextBox.Text = ""
+end
+
+function settingsMod.HidePets(button: TextButton, status : boolean, clickedOn)
+	settingsMod.changeAeshethic(button, status)
+	-- print("hiding the pets here now")
+	if clickedOn then
+		library.Events.PlayerSetting:FireServer("Pets", status)
+	end
+end
+
+function settingsMod.MuteSFX(button: TextButton, status : boolean, clickedOn)
+	settingsMod.changeAeshethic(button, status)
+	for _, sound in pairs(library.SoundService.SoundGroup:GetChildren()) do
+		-- print(sound.Name)
+		if not sound:IsA("Sound")  then continue end
+		if sound.Name == "Music" then
+			continue
+		end
+
+		if status then
+			sound.Volume = .5
+		else
+			sound.Volume = 0
+		end
+	end
+	if clickedOn then 
+		library.Events.PlayerSetting:FireServer("SFX", status)
+	end
+end
+
+function settingsMod.MuteMusic(button: TextButton, status, clickedOn)
+	local volume 
+	if status then
+		volume = 0.5
+		library.SoundService.SoundGroup.Music:Play()
+		
+	else
+		volume = 0
+	end
+	library.SoundService.SoundGroup.Music.Volume = volume
+	
+	settingsMod.changeAeshethic(button, status)
+	if clickedOn then
+		library.Events.PlayerSetting:FireServer("Music", status)
+	end
+end
+
+function settingsMod.changeAeshethic(button: TextButton, status)
+	local color
+	local strokeColor
+	local text = 'ON'
+	if status == false then
+		color = OffColor
+		text = 'OFF'
+		strokeColor = OffColorStroke
+	else
+		text = 'ON'
+		color = OnColor
+		strokeColor = OnColorStroke
+	end
+	button.TextLabel.Text = text
+	button.UIStroke.Color = strokeColor
+	button.BackgroundColor3 = color
+	button.TextLabel.UIStroke.Color = strokeColor
+end
+
+function settingsMod.OnButtonActivation(button: TextButton, settingsName: string)
 	local size = button.Size
 	local xScale = size.X.Scale * 1.05
 	local yScale = size.Y.Scale * 1.05
-    uiHandler.animateButton(button, { Size = UDim2.new(xScale, 0, yScale, 0) }, "ExplosiveButton")
-	-- library.SoundService.SoundGroup.SFX.Volume = 0
+
+	local settingsName = button.Parent.Name
+	if settingsMod[settingsName] == nil then
+		warn("no setting mod for " .. settingsName)
+		return
+	end
+
+	button.Activated:Connect(function()
+		if debounce then
+			return
+		end
+		debounce = true
+		task.delay(0.2, function()
+			debounce = false
+		end)
+		sfxMod.Play("Click", 0.5)
+		uiHandler.animateButton(button, { Size = UDim2.new(xScale, 0, yScale, 0) }, "ExplosiveButton")
+		if settingsName == "RedeemCode" then
+			-- settingsMod.RedeemCode(button)
+			settingsMod.RedeemCode()
+			-- debounce = false
+			return
+			--! this one is depending on the code you put
+		else
+			-- print("doing something here")
+			local status = button:GetAttribute("status")
+			local newStatus = not status
+			-- print(newStatus)
+			button:SetAttribute("status", newStatus)
+			settingsMod[settingsName](button, newStatus, true)
+		end
+	end)
 end
 
-function settingsMod.MuteMusic(button: TextButton)
-	local size = button.Size
-	local xScale = size.X.Scale * 1.2
-	local yScale = size.Y.Scale * 1.2
 
-    currentSettings.Music = not currentSettings.Music
-	uiHandler.animateButton(button, { Size = UDim2.new(xScale, 0, yScale, 0) }, "ExplosiveButton")
-    settingsMod.changeAeshethic(button, currentSettings.Music)
-	library.SoundService.SoundGroup.Music.Volume = 0
-    library.Events.PlayerSetting:FireServer("Music", false)
-end
+function settingsMod.OnClose()
+	codeTextBox.Text = ""
 
-
-function settingsMod.changeAeshethic(button: TextButton, status : boolean)
-    
-    -- local offColor = Color3.fromRGB(126, 15, 11)
-    local colorSequence = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, statuses[status].step1Color),
-        ColorSequenceKeypoint.new(1, statuses[status].step2Color)
-    })
-
-    local uiGradient : UIGradient = button:FindFirstChild("UIGradient")
-    if uiGradient then
-        uiGradient.Color = colorSequence
-    end
-    
-end
-
-function settingsMod.SetupPlayerSettings(playerProfile)
-    
-    local profileSettings = playerProfile.Settings
-    -- warn(profileSettings)
-    warn(profileSettings)
-    currentSettings = profileSettings
-    if profileSettings.Music == false then 
-
-
-        -- settingsMod.MuteMusic(library.PlayerGui.ScreenGui.Frames.Settings.MuteMusic)
-
-        -- library.PlayerGui.ScreenGui.Frames.Settings.MuteMusic.Size = UDim2.new(1.2, 0, 1.2, 0)
-    end
+	print("this text box has been closed")
 
 end
 
 
 function settingsMod:Init()
-	
-
-    task.wait(2) -- Time to load the buttons in 
-    SoundService.SoundGroup.Music:Play() --! play the music by default here
-    local playerProfile = library.Events.GetProfile:InvokeServer()
-    settingsMod.SetupPlayerSettings(playerProfile)
-	settingsFrame = library.PlayerGui.ScreenGui.Frames.Settings
-	-- local options
-
+	-- task.wait(2) -- Time to load the buttons in
+	-- SoundService.SoundGroup.Music:Play() --! play the music by default here
+	local playerProfile = library.Events.GetProfile:InvokeServer()
+	 settingsMod.SetupPlayerSettings(playerProfile)
 	for _, button in pairs(settingsFrame:GetDescendants()) do
 		if button:IsA("TextButton") == false or button:IsA("ImageButton") then
 			continue
 		end
-      
-		if settingsMod[button.Name] == nil then
-			warn("no setting mod for " .. button.Name)
-			continue
-		end
-		local debounce = false
-		button.Activated:Connect(function()
-			if debounce then
-				return
-			end
-			debounce = true
-			warn("activated here, trying tsomething here")
-			library.Events.PlayerSetting:FireServer(button.Name)
-			settingsMod[button.Name](button)
-			warn("changed the thing here")
-			task.delay(0.2, function()
-				debounce = false
-			end)
-		end)
-		-- button.Activated:Connect(function()
-		--     if button.Name == "MuteMusic" then
-		--         settingsMod.MuteMusic()
-		--     end
-		-- end)
+		settingsMod.OnButtonActivation(button)
 	end
+	settingsFrame.AttributeChanged:Connect(function(attribute)
+		if attribute == "Visible" then
+			if settingsFrame.Visible == false then
+				settingsMod.OnClose()
+			end
+		end
+	end)
+	
+	settingsFrame.ScrollingFrame.RedeemCode.Frame.TextBox.FocusLost:Connect(function()
+		print("the focus has been lost")
+		settingsMod.RedeemCode()
+		-- settingsMod.RedeemCode()
+	end)
 end
 
 return settingsMod

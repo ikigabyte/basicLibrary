@@ -35,7 +35,7 @@ function shopMod.setupBoosts(boost, boostStats, shopFrame)
             if owned then
                 owned.TextLabel.Text = `Use ({boostStats.Owned})`
             end
-            warn("updated here")
+            -- warn("updated here")
         end
     end
     -- must find the boost in the shopFrame
@@ -62,7 +62,10 @@ function shopMod.ValidateButton(button)
 	end
 	if gamepassAttribute then
         local gamepassId = library.Shared.Gamepasses[gamepassAttribute]
-        if gamepassId == nil then warn("no gamepass id found here") return end 
+        if gamepassId == nil then
+            --  warn("no gamepass id found here")
+             
+             return end 
         shopMod.setupCurrentPrice(button, "Gamepass", gamepassId)
         button.Activated:Connect(function()
             sfx.Play("Click", 0.5)
@@ -79,7 +82,9 @@ function shopMod.ValidateButton(button)
 	end
 	if devProductAttribute ~= nil then
         local devProductId = library.Shared.DevProduct[devProductAttribute]
-        if not devProductId then warn("no dev product id found") return end
+        if not devProductId then 
+            -- print("not dev product id")
+            return end
         local size = button.Size
         local xScale = size.X.Scale * 1.05
         local yScale = size.Y.Scale * 1.05
